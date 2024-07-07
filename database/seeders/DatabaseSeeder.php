@@ -23,5 +23,14 @@ class DatabaseSeeder extends Seeder
                 "name" => $category
             ]);
         }
+
+        \App\Models\User::factory()->create([
+            "name" => "Alice",
+            "email" => "alice@gmail.com"
+        ]);
+        \App\Models\User::factory()->create([
+            "name" => "Bob",
+            "email" => "bob@gmail.com"
+        ]);
     }
 }

@@ -6,11 +6,19 @@
             <div class="card-body">
                 <h3 class="card-title">{{ $article->title }}</h3>
                 <div class="card-subtitle text-muted small mb-2">
+                    By <b>{{$article->user->name}}</b> ,
                     Category : <b>{{ $article->category->name }}</b> ,
                     {{ $article->created_at->diffForHumans() }}
                 </div>
                 <p class="card-text">{{ $article->body }}</p>
-                <a href="{{url("/articles/delete/$article->id")}}" class="btn btn-danger btn-sm">Delete</a>
+                @auth
+                    @can('article-update', $article)
+                        <a href="{{url("/articles/edit/$article->id")}}" class="btn btn-success btn-sm">Edit</a>
+                    @endcan
+                    @can('article-delete', $article)
+                        <a href="{{url("/articles/delete/$article->id")}}" class="btn btn-danger btn-sm">Delete</a>
+                    @endcan
+                @endauth
             </div>
         </div>
 
@@ -21,17 +29,24 @@
             <li class="list-group-item active">Comments ({{ count($article->comments) }})</li>
             @foreach($article->comments as $comment)
                 <li class="list-group-item">
+                    <b>{{$comment->user->name}}</b> :
                     {{ $comment->content }}
-                    <a href="{{url("/comments/delete/$comment->id")}}" class="btn btn-close"></a>
+                    @auth
+                        @can('comment-delete', $comment)
+                            <a href="{{url("/comments/delete/$comment->id")}}" class="btn btn-close"></a>
+                        @endcan
+                    @endauth
                 </li>
             @endforeach
         </ul>
 
-        <form action="{{url("/comments/add")}}" method="POST">
-            @csrf
-            <input type="hidden" name="article_id" value="{{$article->id}}">
-            <textarea name="content" class="form-control mb-2" placeholder="your comment ..."></textarea>
-            <button class="btn btn-sm btn-primary">Add Comment</button>
-        </form>
+        @auth
+            <form action="{{url("/comments/add")}}" method="POST">
+                @csrf
+                <input type="hidden" name="article_id" value="{{$article->id}}">
+                <textarea name="content" class="form-control mb-2" placeholder="your comment ..."></textarea>
+                <button class="btn btn-sm btn-primary">Add Comment</button>
+            </form>
+        @endauth
     </div>
 @endsection

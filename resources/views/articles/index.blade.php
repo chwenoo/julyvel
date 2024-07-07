@@ -13,6 +13,7 @@
                 <div class="card-body">
                     <h3 class="card-title">{{ $article->title }}</h3>
                     <div class="card-subtitle text-muted small mb-2">
+                        By <b>{{$article->user->name}}</b> ,
                         Category : <b>{{ $article->category->name }}</b> ,
                         Comment : <b>{{ count($article->comments )}}</b> ,
                         {{ $article->created_at->diffForHumans() }}

@@ -3,10 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Category;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
+    public function __construct() {
+        $this->middleware('auth')->except('index', 'detail');
+    }
+
     public function index() {
         $data = Article::latest()->paginate(5);
 
@@ -19,11 +25,7 @@ class ArticleController extends Controller
     }
 
     public function add() {
-        $categories = [
-            ["id" => 1, "name" => "Web"],
-            ["id" => 2, "name" => "Mobile"],
-            ["id" => 3, "name" => "News"],
-        ];
+        $categories = Category::all();
         return view('articles.add', ['categories' => $categories]);
     }
 
@@ -42,15 +44,43 @@ class ArticleController extends Controller
         $article->title = request()->title;
         $article->body = request()->body;
         $article->category_id = request()->category_id;
+        $article->user_id = auth()->user()->id;
         $article->save();
 
         return redirect('/')->with('info', 'new article is created');
     }
 
+    public function edit($id) {
+        $article = Article::find($id);
+        $categories = Category::all();
+        return view('articles.edit', ["article" => $article, "categories" => $categories]);
+    }
+
+    public function update($id) {
+        $article = Article::find($id);
+
+        if (Gate::allows('article-update', $article)) {
+
+            $article->title = request()->title;
+            $article->body = request()->body;
+            $article->category_id = request()->category_id;
+            $article->save();
+
+            return redirect("/articles/detail/$article->id")->with("info", "Article is updated successfully");
+        } else {
+            return redirect("/articles/detail/$article->id")->with("info", "Unauthorized");
+        }
+    }
+
     public function delete($id) {
         $article = Article::find($id);
-        $article->delete();
 
-        return redirect('/')->with('info', 'An article is deleted');
+        if (Gate::allows('article-delete', $article)) {
+            $article->delete();
+            return redirect('/')->with('info', 'An article is deleted');
+        } else {
+            return back()->with('info', 'Unauthorized');
+        }
+
     }
 }
