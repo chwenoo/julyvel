@@ -25,6 +25,7 @@
         @if(session('info'))
             <div class="alert alert-info">{{ session('info') }}</div>
         @endif
+
         <ul class="list-group mb-2">
             <li class="list-group-item active">Comments ({{ count($article->comments) }})</li>
             @foreach($article->comments as $comment)
@@ -32,13 +33,26 @@
                     <b>{{$comment->user->name}}</b> :
                     {{ $comment->content }}
                     @auth
-                        @can('comment-delete', $comment)
-                            <a href="{{url("/comments/delete/$comment->id")}}" class="btn btn-close"></a>
-                        @endcan
+                        <div class="float-end">
+                            @can('comment-update', $comment)
+                                <a href="{{url("/comments/edit/$comment->id")}}" class="btn btn-sm btn-secondary">edit</a>
+                            @endcan
+                            @can('comment-delete', $comment)
+                                <a href="{{url("/comments/delete/$comment->id")}}" class="btn btn-close"></a>
+                            @endcan
+                        </div>
                     @endauth
                 </li>
             @endforeach
         </ul>
+
+        @if($errors->any())
+            <div class="alert alert-danger">
+                @foreach($errors->all() as $error)
+                    {{$error}}
+                @endforeach
+            </div>
+        @endif
 
         @auth
             <form action="{{url("/comments/add")}}" method="POST">

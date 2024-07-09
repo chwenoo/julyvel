@@ -25,6 +25,8 @@ Route::post('/articles/update/{id}', [ArticleController::class, 'update']);
 Route::get('/articles/delete/{id}', [ArticleController::class, 'delete']);
 
 Route::post('/comments/add', [CommentController::class, 'create']);
+Route::get('/comments/edit/{id}', [CommentController::class, 'edit']);
+Route::post('/comments/update/{id}', [CommentController::class, 'update']);
 Route::get('/comments/delete/{id}', [CommentController::class, 'delete']);
 
 Auth::routes();
